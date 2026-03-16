@@ -43,3 +43,6 @@ Thumbs.db
 .env
 *.env
 application-local.properties
+
+### Local notes ###
+doc.txt
