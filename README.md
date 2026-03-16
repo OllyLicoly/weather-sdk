@@ -2,8 +2,7 @@
 
 # **Weather SDK for Java**
 
-A lightweight Java SDK for interacting with the OpenWeather API.
-Provides a simple, extensible, and production-ready way to fetch and cache real-time weather data.
+Java SDK for retrieving current weather data from the OpenWeather API.
 
 ---
 
