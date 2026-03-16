@@ -7,114 +7,138 @@ Provides a simple, extensible, and production-ready way to fetch and cache real-
 
 ---
 
-## 🚀 Features
+## Features
 
-* Easy-to-use Java client for OpenWeather API
-* Configurable SDK behavior (cache, units, polling, logging)
-* Built-in in-memory cache with TTL and capacity limits
-* Automatic city name normalization
-* Optional background polling
-* Clear exceptions and error handling
-* Fully covered with unit tests
-* Examples included
+- retrieve current weather by city name
+- initialize SDK with an API key
+- return weather data in a normalized JSON format
+- cache recently requested cities with TTL
+- support two modes:
+  - **on-demand** — fetch data only when requested
+  - **polling** — refresh cached data in the background
+- throw descriptive exceptions on failure
+- include usage examples and tests
 
 ---
 
-## 📦 Installation
+Stack: Java 17, Maven, Spring Boot, Gson, Lombok, MapStruct, JUnit 5, Mockito, WireMock, JaCoCo
 
-Add the dependency to your Maven project:
+---
 
-```xml
-<dependency>
-    <groupId>prosperpay.weather</groupId>
-    <artifactId>weather-sdk</artifactId>
-    <version>1.0.0</version>
-</dependency>
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/OllyLicoly/weather-sdk.git
+cd weather-sdk
 ```
----
 
-## 🔧 Configuration
+### 2. Build the project
 
-The SDK is configured via `WeatherSdkConfig`:
+```bash
+./mvnw clean install
+```
+
+On Windows:
+
+```bash
+mvnw.cmd clean install
+```
+
+### 3. Prepare API key
+
+Create an API key in OpenWeather and pass it to the SDK from outside the source code.
+
+For example, via environment variable:
+
+```bash
+OPENWEATHER_API_KEY=YOUR_API_KEY
+```
+
+## Configuration
+
+The SDK is configured through `WeatherSdkConfig`.
+
+Example:
 
 ```java
 WeatherSdkConfig config = WeatherSdkConfig.builder()
         .defaultUnits(Units.METRIC)
         .cacheTtlMinutes(10)
-        .maxCachedCities(20)
-        .pollingIntervalMinutes(0) // disable polling
+        .pollingIntervalMinutes(0)
         .debugLogging(true)
         .build();
 ```
 
----
+Notes:
+- `pollingIntervalMinutes(0)` disables polling mode
+- a positive polling interval enables background refresh
+- cached entries remain valid for the configured TTL
 
-## 📝 Example Program
+## Example Usage
 
-A full runnable example is available in `/examples`.
+```java
+String apiKey = System.getenv("OPENWEATHER_API_KEY");
 
-Run:
+WeatherSdkConfig config = WeatherSdkConfig.builder()
+        .defaultUnits(Units.METRIC)
+        .cacheTtlMinutes(10)
+        .pollingIntervalMinutes(0)
+        .debugLogging(true)
+        .build();
 
+WeatherClient client = WeatherClientFactory.create(apiKey, config);
+
+String weatherJson = client.getCurrentWeather("Tashkent");
+System.out.println(weatherJson);
 ```
-mvn exec:java -Dexec.mainClass="examples.WeatherApiExample"
+
+A runnable example is available in the `examples` directory.
+
+## Response Format
+
+The SDK returns weather data in a normalized JSON structure like this:
+
+```json
+{
+  "weather": {
+    "main": "Clouds",
+    "description": "scattered clouds"
+  },
+  "temperature": {
+    "temp": 269.6,
+    "feels_like": 267.57
+  },
+  "visibility": 10000,
+  "wind": {
+    "speed": 1.38
+  },
+  "datetime": 1675744800,
+  "sys": {
+    "sunrise": 1675751262,
+    "sunset": 1675787560
+  },
+  "timezone": 3600,
+  "name": "Zocca"
+}
 ```
 
----
+## Running Tests
 
-## 🧪 Tests
-
-The project includes:
-
-* Unit tests for cache
-* Unit tests for WeatherClient
-* WireMock integration tests for WeatherApiService
-* Mockito-based tests for client behavior
-* JaCoCo coverage
-
-Run tests:
-
-```
-mvn test
+```bash
+./mvnw test
 ```
 
 Generate coverage report:
 
-```
-mvn test jacoco:report
+```bash
+./mvnw test jacoco:report
 ```
 
-Report will appear at:
+JaCoCo report:
 
-```
+```text
 target/site/jacoco/index.html
 ```
-
----
-
-## 📚 Project Structure
-
-```
-src/
-  main/java/prosperpay/weather/api/weathersdk/
-    cache/
-    client/
-    config/
-    dto/
-    exception/
-    mapper/
-    model/entity/
-    service/
-  test/java/
-examples/
-README.md
-pom.xml
-```
-
----
-
-## 🛠 Requirements
-
-* Java 17+
-* Maven 3.6+
-* OpenWeather API key
-
