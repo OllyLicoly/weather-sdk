@@ -2,7 +2,6 @@ package prosperpay.weather.api.weathersdk.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import prosperpay.weather.api.weathersdk.client.WeatherClientImpl;
 import prosperpay.weather.api.weathersdk.dto.WeatherApiResponse;
 import prosperpay.weather.api.weathersdk.exception.WeatherException;
 import prosperpay.weather.api.weathersdk.mapper.WeatherDataMapper;
@@ -31,12 +30,8 @@ public class WeatherApiService {
         this.units = units == null ? Units.METRIC : units;
     }
 
-    /**
-     * Получает данные о погоде для заданного города.
-     */
     public WeatherData fetchWeather(String city) throws WeatherException {
         try {
-            // Кодируем название города
             String encodedCity = URLEncoder.encode(city, StandardCharsets.UTF_8);
             log.debug("Preparing API request for city={}", city);
             String urlStr = String.format(
@@ -61,7 +56,6 @@ public class WeatherApiService {
                 throw new WeatherException("Ошибка API: код " + code);
             }
 
-            // Парсим JSON
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
                 log.debug("Parsing API response for city={}", city);
                 WeatherApiResponse response = gson.fromJson(reader, WeatherApiResponse.class);

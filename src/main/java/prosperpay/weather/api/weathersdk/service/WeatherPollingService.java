@@ -42,7 +42,7 @@ public class WeatherPollingService {
                     String cacheKey = entry.getKey();
                     WeatherData data = entry.getValue();
 
-                    String cityForApi = data.getName();  // API city name from WeatherData
+                    String cityForApi = data.getName();
 
                     log.debug("Polling update for city={} (API name={})", cacheKey, cityForApi);
 

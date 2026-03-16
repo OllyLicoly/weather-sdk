@@ -12,8 +12,6 @@ import prosperpay.weather.api.weathersdk.service.WeatherPollingService;
 
 import java.util.Locale;
 
-
-// фасад (входная точка SDK)
 public class WeatherClientImpl implements WeatherClient{
 
     private static final Logger log = LoggerFactory.getLogger(WeatherClientImpl.class);
@@ -38,12 +36,11 @@ public class WeatherClientImpl implements WeatherClient{
             log.info("Debug logging enabled");
         }
 
-        if (pollingMode && config.getPollingIntervalMinutes() > 0) {     // ✦ исправлено
+        if (pollingMode && config.getPollingIntervalMinutes() > 0) {
             log.info("Starting polling mode (interval={} min)", config.getPollingIntervalMinutes());
             pollingService.start();
         }
 
-            // Корректная остановка фонового потока при завершении JVM
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
                     pollingService.stop();
@@ -52,13 +49,6 @@ public class WeatherClientImpl implements WeatherClient{
 
     }
 
-    /**
-     * В режиме polling погода обновляется в фоне каждые N минут
-     * и SDK должен отдавать мгновенные ответы из кеша.
-     *
-     * Поэтому, если данных в кеше пока нет (polling не успел обновить),
-     * мы НЕ обращаемся к API, чтобы не превращать polling в on-demand режим.
-     */
     @Override
     public WeatherData getWeather(String city) throws WeatherException {
         if (city == null || city.isBlank()) {
@@ -67,10 +57,9 @@ public class WeatherClientImpl implements WeatherClient{
 
         log.info("WeatherClient: getWeather('{}') called", city);
         String normalizedCity = city.trim().toLowerCase(Locale.ROOT);
-        log.debug("CACHE LOOKUP for city={}", normalizedCity); //SDK обратился к кэшу и начал проверку»
+        log.debug("CACHE LOOKUP for city={}", normalizedCity);
         WeatherData cached = cache.get(normalizedCity);
         if (cached != null) {
-            //Кэш успешно вернул данные
             log.info("CACHE HIT for city={}", normalizedCity);
             return cached;
         }
@@ -79,7 +68,6 @@ public class WeatherClientImpl implements WeatherClient{
             throw new WeatherException("Данные ещё не готовы. Подождите, пока polling обновит погоду.");
         }
 
-        //В кэше не найдено → сейчас будет HTTP запрос
         log.info("CACHE MISS for city={} → calling API", normalizedCity);
         WeatherData data = apiService.fetchWeather(city);
         log.debug("CACHE PUT city={} (timestamp={})", normalizedCity, data.getTimestamp());
